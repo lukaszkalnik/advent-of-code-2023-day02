@@ -6,16 +6,13 @@ val redRegex = """ (\d+) red""".toRegex()
 val greenRegex = """ (\d+) green""".toRegex()
 val blueRegex = """ (\d+) blue""".toRegex()
 
-val limit = Subset(
-    red = 12,
-    green = 13,
-    blue = 14,
-)
-
 fun main() {
     val input = File("input.txt").readLines()
 
-    val result = input.map { it.parseGame() }.filter { game -> game.subsets.none { it.exceeds(limit) } }.sumOf { it.id }
+    val result = input.map {
+        val minSubset = it.parseGame().subsets.minimumCommonSubset()
+        minSubset.red * minSubset.green * minSubset.blue
+    }.sum()
     println(result)
 }
 
@@ -28,9 +25,7 @@ data class Subset(
     val red: Int,
     val green: Int,
     val blue: Int,
-) {
-    fun exceeds(other: Subset): Boolean = red > other.red || green > other.green || blue > other.blue
-}
+)
 
 fun String.parseGame(): Game {
     val gameTokens = split(":")
@@ -62,4 +57,13 @@ private fun Sequence<String>.findNumber(regex: Regex): Int =
         .find { it != null }
         ?: 0
 
-
+fun List<Subset>.minimumCommonSubset(): Subset {
+    val red = maxOf { it.red }
+    val green = maxOf { it.green }
+    val blue = maxOf { it.blue }
+    return Subset(
+        red = red,
+        green = green,
+        blue = blue,
+    )
+}
