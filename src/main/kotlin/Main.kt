@@ -6,10 +6,17 @@ val redRegex = """ (\d+) red""".toRegex()
 val greenRegex = """ (\d+) green""".toRegex()
 val blueRegex = """ (\d+) blue""".toRegex()
 
+val limit = Subset(
+    red = 12,
+    green = 13,
+    blue = 14,
+)
+
 fun main() {
     val input = File("input.txt").readLines()
 
-    input.forEach { println(it.parseGame()) }
+    val result = input.map { it.parseGame() }.filter { game -> game.subsets.none { it.exceeds(limit) } }.sumOf { it.id }
+    println(result)
 }
 
 data class Game(
@@ -21,7 +28,9 @@ data class Subset(
     val red: Int,
     val green: Int,
     val blue: Int,
-)
+) {
+    fun exceeds(other: Subset): Boolean = red > other.red || green > other.green || blue > other.blue
+}
 
 fun String.parseGame(): Game {
     val gameTokens = split(":")
