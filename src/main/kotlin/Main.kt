@@ -57,7 +57,7 @@ fun String.parseSubset(): Subset {
     )
 }
 
-private fun Sequence<String>.findNumber(regex: Regex) =
+private fun Sequence<String>.findNumber(regex: Regex): Int =
     map { regex.find(it)?.groupValues?.get(1)?.toInt() }
         .find { it != null }
         ?: 0
