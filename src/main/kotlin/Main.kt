@@ -44,15 +44,11 @@ fun String.parseGame(): Game {
 }
 
 fun String.parseSubset(): Subset {
-    val colorTokens = split(",")
+    val colorTokens = split(",").asSequence()
 
-    val (redToken, colorTokensNoRed) = colorTokens.partition { redRegex.matches(it) }
-    val redNumber = redToken.firstOrNull()?.let { redRegex.find(it)!!.groupValues[1].toInt() } ?: 0
-
-    val (greenToken, colorTokensNoRedOrGreen) = colorTokensNoRed.partition { greenRegex.matches(it) }
-    val greenNumber = greenToken.firstOrNull()?.let { greenRegex.find(it)!!.groupValues[1].toInt() } ?: 0
-
-    val blueNumber = colorTokensNoRedOrGreen.firstOrNull()?.let { blueRegex.find(it)!!.groupValues[1].toInt() } ?: 0
+    val redNumber = colorTokens.findNumber(redRegex)
+    val greenNumber = colorTokens.findNumber(greenRegex)
+    val blueNumber = colorTokens.findNumber(blueRegex)
 
     return Subset(
         red = redNumber,
@@ -60,3 +56,10 @@ fun String.parseSubset(): Subset {
         blue = blueNumber,
     )
 }
+
+private fun Sequence<String>.findNumber(regex: Regex) =
+    map { regex.find(it)?.groupValues?.get(1)?.toInt() }
+        .find { it != null }
+        ?: 0
+
+
