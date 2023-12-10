@@ -1,6 +1,12 @@
 import java.io.File
 
-fun main(args: Array<String>) {
+val gameRegex = """Game (\d+)""".toRegex()
+
+val redRegex = """ (\d+) red""".toRegex()
+val greenRegex = """ (\d+) green""".toRegex()
+val blueRegex = """ (\d+) blue""".toRegex()
+
+fun main() {
     val input = File("input.txt").readLines()
 
     input.forEach { println(it.parseGame()) }
@@ -20,12 +26,28 @@ data class Subset(
 fun String.parseGame(): Game {
     val gameTokens = split(":")
     val gameToken = gameTokens.first()
-    val id = """Game (\d+)""".toRegex()
-        .find(gameToken)!!.groupValues[1].toInt()
+    val id = gameRegex.find(gameToken)!!.groupValues[1].toInt()
 
-    return Game(id, emptyList())
+    val subsetTokens = gameTokens[1].split(";")
+    val subsets = subsetTokens.map { it.parseSubset() }
+
+    return Game(id, subsets)
 }
 
 fun String.parseSubset(): Subset {
-    TODO()
+    val colorTokens = split(",")
+
+    val (redToken, colorTokensNoRed) = colorTokens.partition { redRegex.matches(it) }
+    val redNumber = redToken.firstOrNull()?.let { redRegex.find(it)!!.groupValues[1].toInt() } ?: 0
+
+    val (greenToken, colorTokensNoRedOrGreen) = colorTokensNoRed.partition { greenRegex.matches(it) }
+    val greenNumber = greenToken.firstOrNull()?.let { greenRegex.find(it)!!.groupValues[1].toInt() } ?: 0
+
+    val blueNumber = colorTokensNoRedOrGreen.firstOrNull()?.let { blueRegex.find(it)!!.groupValues[1].toInt() } ?: 0
+
+    return Subset(
+        red = redNumber,
+        green = greenNumber,
+        blue = blueNumber,
+    )
 }
